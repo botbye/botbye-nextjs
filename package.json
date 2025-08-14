@@ -1,0 +1,18 @@
+{
+  "name": "botbye-nextjs",
+  "main": "index.js",
+  "version": "0.1.0",
+  "private": false,
+  "dependencies": {
+    "botbye-client": "^1.0.12",
+    "botbye-node-core": "^1.0.6"
+  },
+  "devDependencies": {
+    "next": "^15.0.0",
+    "react": "^19.0.0"
+  },
+  "peerDependencies": {
+    "next": "^15.0.0",
+    "react": "^19.0.0"
+  }
+}

@@ -1,4 +1,4 @@
 import React from "react";
-import { initChallenges } from "botbye-client";
-export declare const BotByeComponent: React.FC<Parameters<typeof initChallenges>[0]>;
-export { runChallenge, } from "botbye-client";
+import { TInitChallengesOptions } from "botbye-client";
+export declare const BotByeComponent: React.FC<TInitChallengesOptions>;
+export { runChallenge, TInitChallengesOptions, TGetTokenOptions, TChallengesRunner, } from "botbye-client";

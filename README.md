@@ -123,7 +123,7 @@ export default function App() {
 
 ```typescript jsx
 "use client"
-import {runChallenge} from "botbye-client";
+import {runChallenge} from "botbye-nextjs";
 
 export const LoginButton = () => {
     const onClick = async () => {

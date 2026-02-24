@@ -1,11 +1,11 @@
 {
   "name": "botbye-nextjs",
   "main": "index.js",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": false,
   "dependencies": {
-    "botbye-client": "^1.1.0",
-    "botbye-node-core": "^1.0.6"
+    "botbye-client": "^1.2.0",
+    "botbye-node-core": "^1.0.7"
   },
   "devDependencies": {
     "next": "^15.0.0",

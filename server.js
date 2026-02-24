@@ -2,11 +2,29 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateRequest = exports.init = void 0;
 const MODULE_NAME = "NodeJS-NextJS";
-const MODULE_VERSION = "0.1.0";
+const MODULE_VERSION = "0.1.1";
 let SERVER_KEY = "";
 let API = "verify.botbye.com";
+const sendInitRequest = (serverKey) => {
+    fetch(`https://${API}/init-request/v1`, {
+        method: "POST",
+        body: JSON.stringify({ serverKey }),
+    }).then((r) => r.json())
+        .then((data) => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        if (data.status === "ok") {
+            console.log('[BotBye] Inited');
+        }
+    })
+        .catch((e) => {
+        console.error(`[BotBye] Init Error: `, e);
+    });
+};
 const init = (options) => {
     SERVER_KEY = options.serverKey;
+    sendInitRequest(SERVER_KEY);
 };
 exports.init = init;
 const extractIp = (request) => {

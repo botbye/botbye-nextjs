@@ -26,8 +26,10 @@ init({
     /* Use your server-key */
     serverKey: "00000000-0000-0000-0000-000000000000"
 })
-
 ```
+
+> If validation runs in the **handler**, call `init` in `instrumentation.ts`. If it runs in **middleware**, call `init` inside `middleware.ts`.
+
 
 2. Add request validation
 

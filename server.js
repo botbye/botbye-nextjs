@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateRequest = exports.init = void 0;
+const SERVER_KEY_GLOBAL_KEY = "__botbye_server_key__";
 const MODULE_NAME = "NodeJS-NextJS";
 const MODULE_VERSION = "0.1.1";
-let SERVER_KEY = "";
 let API = "verify.botbye.com";
 const sendInitRequest = (serverKey) => {
     fetch(`https://${API}/init-request/v1`, {
@@ -23,8 +23,8 @@ const sendInitRequest = (serverKey) => {
     });
 };
 const init = (options) => {
-    SERVER_KEY = options.serverKey;
-    sendInitRequest(SERVER_KEY);
+    globalThis[SERVER_KEY_GLOBAL_KEY] = options.serverKey;
+    sendInitRequest(options.serverKey);
 };
 exports.init = init;
 const extractIp = (request) => {
@@ -60,7 +60,7 @@ const makeRequest = (options) => new Promise((resolve) => {
         resolve(getNetworkErrorResponse("Connection Timeout"));
     }, 300);
     const body = JSON.stringify({
-        server_key: SERVER_KEY,
+        server_key: globalThis[SERVER_KEY_GLOBAL_KEY],
         request_info: options.requestInfo,
         headers: options.headers,
         custom_fields: (_a = options.customFields) !== null && _a !== void 0 ? _a : {},
@@ -84,7 +84,7 @@ const makeRequest = (options) => new Promise((resolve) => {
     });
 });
 const validateRequest = (options) => {
-    if (!SERVER_KEY) {
+    if (!globalThis[SERVER_KEY_GLOBAL_KEY]) {
         throw new Error('[BotBye!] Init should be called before validateRequest');
     }
     const { token, request, customFields, } = options;

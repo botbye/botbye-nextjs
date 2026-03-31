@@ -1,14 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateRequest = exports.init = void 0;
+const constants_1 = require("./constants");
 const SERVER_KEY_GLOBAL_KEY = "__botbye_server_key__";
-const MODULE_NAME = "NodeJS-NextJS";
-const MODULE_VERSION = "0.1.1";
 let API = "verify.botbye.com";
 const sendInitRequest = (serverKey) => {
     fetch(`https://${API}/init-request/v1`, {
         method: "POST",
         body: JSON.stringify({ serverKey }),
+        headers: {
+            ['Module-Name']: constants_1.MODULE_NAME,
+            ['Module-Version']: constants_1.MODULE_VERSION,
+        },
     }).then((r) => r.json())
         .then((data) => {
         if (data.error) {
@@ -68,8 +71,8 @@ const makeRequest = (options) => new Promise((resolve) => {
     fetch(`https://${API}/validate-request/v2?` + encodeURI(options.token), {
         method: 'POST',
         headers: {
-            ['Module-Name']: MODULE_NAME,
-            ['Module-Version']: MODULE_VERSION,
+            ['Module-Name']: constants_1.MODULE_NAME,
+            ['Module-Version']: constants_1.MODULE_VERSION,
             Connection: 'keep-alive',
         },
         body,

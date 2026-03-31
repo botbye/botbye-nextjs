@@ -6,7 +6,13 @@ const react_1 = require("react");
 const botbye_client_1 = require("botbye-client");
 const BotByeComponent = (options) => {
     (0, react_1.useEffect)(() => {
-        (0, botbye_client_1.initChallenges)(options);
+        const opt = Object.assign(Object.assign({}, options), { internal: {
+                integration: {
+                    version: "0.2.3",
+                    type: "NEXTJS"
+                }
+            } });
+        (0, botbye_client_1.initChallenges)(opt);
     }, []);
     return null;
 };

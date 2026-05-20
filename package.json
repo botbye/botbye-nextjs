@@ -1,18 +1,39 @@
 {
-  "name": "botbye-nextjs",
-  "main": "index.js",
-  "version": "0.2.4",
-  "private": false,
-  "dependencies": {
-    "botbye-client": "^1.2.1",
-    "botbye-node-core": "^1.0.7"
+  "name": "@botbye/nextjs",
+  "version": "2.0.0",
+  "description": "BotBye! integration for Next.js",
+  "exports": {
+    "./server": {
+      "types": "./src/server.d.ts",
+      "require": "./src/server.js",
+      "import": "./src/server.js"
+    },
+    "./client": {
+      "types": "./src/client.d.ts",
+      "require": "./src/client.js",
+      "import": "./src/client.js"
+    }
   },
-  "devDependencies": {
-    "next": "^15.0.0",
-    "react": "^19.0.0"
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://botbye.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/botbye/botbye-nextjs"
+  },
+  "dependencies": {
+    "@botbye/client": "^2.0.0",
+    "@botbye/node-core": "^2.0.0"
   },
   "peerDependencies": {
-    "next": "^15.0.0",
-    "react": "^19.0.0"
+    "next": ">=13",
+    "react": ">=18"
   }
 }

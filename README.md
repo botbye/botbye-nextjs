@@ -202,9 +202,6 @@ Use at the outermost layer — Next.js middleware, API route handler — when yo
 
   customFields?: Record<string, string>;
 
-  config?: {
-    bypassBotValidation?: boolean | null;
-  };
 }
 ```
 
@@ -236,7 +233,7 @@ export async function POST(request) {
 
 ### `risk` — domain-level risk scoring
 
-Use inside route handlers or server actions that already know the user: auth, payments, account management. The purpose shifts from "is this a bot?" to **"is something suspicious happening for this user?"** — credential stuffing, account takeover, account sharing, logins from a new geo.
+Use inside route handlers or server actions that already know the user: auth, payments, account management, etc. The purpose shifts from "is this a bot?" to **"is something suspicious happening for this user?"** — credential stuffing, account takeover, account sharing, logins from a new geo.
 
 **Event fields:**
 
@@ -265,9 +262,6 @@ Use inside route handlers or server actions that already know the user: auth, pa
   customFields?: Record<string, string>;
   botbyeResult?: string;
 
-  config?: {
-    bypassBotValidation?: boolean | null;
-  };
 }
 ```
 
@@ -299,6 +293,47 @@ async function onLoginAttempt({ ip, userId, email, loginSucceeded }) {
 }
 ```
 
+#### Linking `validate` and `risk` events
+
+When the same request is evaluated at two layers — for example, once at the edge in middleware (`type: "validate"`) and then again inside a route handler or server action (`type: "risk"`) — BotBye can link both events and display them as a single event in the dashboard.
+
+**Step 1 — middleware** (edge layer): run `validate` and capture `botbye_result`:
+
+```javascript
+// middleware.js
+const edgeResult = await evaluate({
+  type: "validate",
+  request: {
+    request,
+    // "x-botbye-token" is an example — pass the token from wherever you store it
+    token: request.headers.get("x-botbye-token"),
+  },
+});
+const edgeBotbyeResult = edgeResult.botbye_result;
+// Pass edgeBotbyeResult downstream — a response header forwarded to the route handler, etc.
+```
+
+**Step 2 — route handler or server action** (domain layer): pass it as `botbyeResult` in the `risk` call:
+
+```javascript
+// app/api/auth/login/route.js
+const riskResult = await evaluate({
+  type: "risk",
+  request: { ip },
+  event: {
+    type: "login",
+    status: loginSucceeded ? "SUCCESSFUL" : "FAILED",
+  },
+  user: {
+    accountId: userId,
+    email,
+  },
+  botbyeResult: edgeBotbyeResult,
+});
+```
+
+`botbye_result` is optional in the response — if it is absent, omit `botbyeResult` and the events will be recorded independently.
+
 ---
 
 ### `full` — edge check and domain scoring in one call
@@ -329,9 +364,6 @@ Use when you have all context at once: raw request, token, user, and event. A lo
 
   customFields?: Record<string, string>;
 
-  config?: {
-    bypassBotValidation?: boolean | null;
-  };
 }
 ```
 
@@ -385,11 +417,11 @@ type TEvaluationResult =
       risk_score: number;
       scores: Record<string, number>;
       signals: string[];
-      config: { bypass_bot_validation: boolean };
+      botbye_result?: string;
     }
   | {
       decision: "ALLOW" | "BLOCK" | "CHALLENGE";
-      config: { bypass_bot_validation: boolean };
+      botbye_result?: string;
       error: { message: string };
     };
 ```
@@ -412,8 +444,7 @@ Blocked (bot detected):
   "decision": "BLOCK",
   "risk_score": 0.95,
   "scores": { "bot": 0.95 },
-  "signals": ["AutomationTool"],
-  "config": { "bypass_bot_validation": false }
+  "signals": ["AutomationTool"]
 }
 ```
 
@@ -425,8 +456,7 @@ Allowed:
   "decision": "ALLOW",
   "risk_score": 0.05,
   "scores": { "bot": 0.05, "ato": 0.02 },
-  "signals": [],
-  "config": { "bypass_bot_validation": false }
+  "signals": []
 }
 ```
 
@@ -439,8 +469,7 @@ Challenge:
   "risk_score": 0.65,
   "scores": { "bot": 0.65 },
   "signals": ["SuspiciousFingerprint"],
-  "challenge": { "type": "captcha", "token": "..." },
-  "config": { "bypass_bot_validation": false }
+  "challenge": { "type": "captcha", "token": "..." }
 }
 ```
 
@@ -449,7 +478,6 @@ Invalid `serverKey`:
 ```json
 {
   "decision": "ALLOW",
-  "config": { "bypass_bot_validation": true },
   "error": { "message": "[BotBye] Bad Request: Invalid Server Key" }
 }
 ```

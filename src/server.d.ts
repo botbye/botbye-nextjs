@@ -23,9 +23,6 @@ declare const init: (options: import("@botbye/node-core").TInitOptions) => void,
         email?: import("@botbye/node-core").TNullable<string>;
         phone?: import("@botbye/node-core").TNullable<string>;
     };
-    config?: {
-        bypassBotValidation?: import("@botbye/node-core").TNullable<boolean>;
-    };
     customFields?: {
         [x: string]: string;
     };
@@ -51,9 +48,6 @@ declare const init: (options: import("@botbye/node-core").TInitOptions) => void,
         email?: import("@botbye/node-core").TNullable<string>;
         phone?: import("@botbye/node-core").TNullable<string>;
     };
-    config?: {
-        bypassBotValidation?: import("@botbye/node-core").TNullable<boolean>;
-    };
     customFields?: {
         [x: string]: string;
     };
@@ -69,9 +63,6 @@ declare const init: (options: import("@botbye/node-core").TInitOptions) => void,
     } | {
         request: NextRequest;
         token?: import("@botbye/node-core").TNullable<string>;
-    };
-    config?: {
-        bypassBotValidation?: import("@botbye/node-core").TNullable<boolean>;
     };
     customFields?: {
         [x: string]: string;

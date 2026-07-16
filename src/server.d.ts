@@ -1,4 +1,4 @@
-import { type TModuleApi } from "@botbye/node-core";
+import { type TModuleApi, type TPhishingModuleApi } from "@botbye/node-core";
 import { type NextRequest } from "next/server";
 declare const factory: () => TModuleApi<NextRequest>;
 declare const init: (options: import("@botbye/node-core").TInitOptions) => void, evaluate: (event: {
@@ -29,10 +29,10 @@ declare const init: (options: import("@botbye/node-core").TInitOptions) => void,
 } | {
     type: "risk";
     request: {
+        requestUri?: import("@botbye/node-core").TNullable<string>;
         ip: string;
         token?: import("@botbye/node-core").TNullable<string>;
         requestMethod?: import("@botbye/node-core").TNullable<string>;
-        requestUri?: import("@botbye/node-core").TNullable<string>;
         headers?: import("@botbye/node-core").TRequestInfo["headers"];
     } | {
         request: NextRequest;
@@ -72,5 +72,7 @@ declare const init: (options: import("@botbye/node-core").TInitOptions) => void,
     sendInitCall(): void;
     getLogger(): import("@botbye/node-core").TLogger;
 };
-export { init, evaluate, dev, factory, };
+declare const phishingFactory: () => TPhishingModuleApi<NextRequest>;
+declare const phishing: TPhishingModuleApi<NextRequest>;
+export { init, evaluate, dev, factory, phishing, phishingFactory, };
 export type * from "@botbye/node-core";

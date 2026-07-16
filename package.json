@@ -1,6 +1,6 @@
 {
   "name": "@botbye/nextjs",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "BotBye! integration for Next.js",
   "exports": {
     "./server": {
@@ -29,8 +29,8 @@
     "url": "https://github.com/botbye/botbye-nextjs"
   },
   "dependencies": {
-    "@botbye/client": "^2.0.0",
-    "@botbye/node-core": "^2.1.1"
+    "@botbye/client": "^2.1.0",
+    "@botbye/node-core": "^2.2.0"
   },
   "peerDependencies": {
     "next": ">=13",

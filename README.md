@@ -469,7 +469,7 @@ Challenge:
   "risk_score": 0.65,
   "scores": { "bot": 0.65 },
   "signals": ["SuspiciousFingerprint"],
-  "challenge": { "type": "captcha", "token": "..." }
+  "challenge": { "type": "CAPTCHA", "token": "..." }
 }
 ```
 
@@ -543,6 +543,100 @@ const result = await sdk.evaluate({
 import { dev } from "@botbye/nextjs/server";
 
 dev.setLoggerLevel("debug"); // "error" | "warn" | "info" | "debug" | "log"
+```
+
+## Anti-Phishing
+
+BotBye's anti-phishing detects look-alike sites that clone your pages to steal credentials. This integration serves the detection **catcher** from your own origin, so the BotBye domain stays hidden from the client.
+
+- [Anti-Phishing Protection overview](https://botbye.com/docs/anti-phishing/overview)
+- [Why a server-side integration is needed](https://botbye.com/docs/anti-phishing/overview#server-integration)
+
+Anti-phishing is identified by its own `clientKey` (available in your Phishing Project in the Dashboard), not the server key used by `evaluate`, so it is configured separately.
+
+### Configuration
+
+Call `phishing.init` once at server startup — `instrumentation.ts` is the recommended place:
+
+```typescript
+// instrumentation.ts
+import { phishing } from "@botbye/nextjs/server";
+
+export function register() {
+  phishing.init({
+    // clientKey from your Phishing Project on the Admin Dashboard
+    clientKey: "00000000-0000-0000-0000-000000000000",
+  });
+}
+```
+
+### `phishing.init` options
+
+| Option | Type | Required | Description |
+|---|---|---|---|
+| `clientKey` | `string` | Yes | `clientKey` from your Phishing Project on the Admin Dashboard |
+| `url` | `string` | No | Override BotBye API endpoint (default: `https://verify.botbye.com`) |
+| `logger.level` | `"error" \| "warn" \| "info" \| "debug" \| "log"` | No | Log level (default: `"info"`) |
+| `logger.logger` | `TLogger` | No | Custom logger instance implementing `{ error, warn, info, debug, log }` |
+| `timeouts.fetchCatcher` | `number` | No | Timeout in milliseconds for each `fetchCatcher` call |
+
+### Usage
+
+Anti-phishing needs **two route handlers on your own origin**, each proxied through `fetchCatcher`:
+
+- **SVG route** — serves the SVG catcher. This is the URL your [client](https://botbye.com/docs/anti-phishing/integrations/client/js-tag#getcatcher-options) passes to `getCatcher({ url })`.
+- **PNG route** — serves the PNG that the SVG references (via `innerPngUrl`).
+
+The paths are arbitrary — name the routes however you like. Pass the `NextRequest` as `request` and the `format`. For the SVG, `innerPngUrl` must be the **absolute URL** of your PNG route — the browser loads that PNG directly from your origin.
+
+```javascript
+// app/botbye-catcher.svg/route.js
+import { phishing } from "@botbye/nextjs/server";
+import { NextResponse } from "next/server";
+
+// Absolute URL of your PNG endpoint — the SVG catcher references it through innerPngUrl.
+const PNG_CATCHER_URL = "https://your-site.example/botbye-catcher.png";
+
+export async function GET(request) {
+  const catcher = await phishing.fetchCatcher({
+    request,
+    format: "svg",
+    innerPngUrl: PNG_CATCHER_URL, // absolute URL of the PNG endpoint below
+  });
+
+  return new NextResponse(catcher.body, { status: catcher.status, headers: catcher.headers });
+}
+```
+
+```javascript
+// app/botbye-catcher.png/route.js
+import { phishing } from "@botbye/nextjs/server";
+import { NextResponse } from "next/server";
+
+export async function GET(request) {
+  const catcher = await phishing.fetchCatcher({ request, format: "png" });
+
+  return new NextResponse(catcher.body, { status: catcher.status, headers: catcher.headers });
+}
+```
+
+We recommend embedding the **SVG catcher**: it is designed to keep tracking even when a phishing site copies all of your assets to its own infrastructure (the PNG route exists because the SVG catcher relies on it).
+
+### Advanced: multiple instances
+
+Use `phishingFactory` to create independent SDK instances, the same way `factory` works for `evaluate`:
+
+```javascript
+import { phishingFactory } from "@botbye/nextjs/server";
+
+const sdk = phishingFactory();
+
+sdk.init({
+  // clientKey from your Phishing Project on the Admin Dashboard
+  clientKey: "00000000-0000-0000-0000-000000000000",
+});
+
+const catcher = await sdk.fetchCatcher({ request, format: "svg", innerPngUrl: PNG_CATCHER_URL });
 ```
 
 ## Documentation

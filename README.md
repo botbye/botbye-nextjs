@@ -390,7 +390,7 @@ export async function POST(request) {
       status: loginSucceeded ? "SUCCESSFUL" : "FAILED",
     },
     user: {
-      accountId: user?.id ?? "unknown",
+      accountId: user?.id ?? "",
       email,
     },
   });
